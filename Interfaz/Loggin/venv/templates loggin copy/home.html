@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block title %} Home {% endblock %}
+{% block content %}
+<h1>BIENVENIDO <span class="badge badge-secondary"></span></h1>
+{% if session['NOMBRE'] %}
+<div class="alert alert-success" role="alert">
+    {{ session['NOMBRE'] }}
+</div>
+<a href="/licreg" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Licencia</a>
+{% else %}
+<div class="alert alert-warning" role="alert">
+  Not Login !
+</div>
+{% endif %}
+
+{% endblock %}

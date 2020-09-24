@@ -1,0 +1,135 @@
+{% extends 'layout.html' %}
+{% block title %} Register_ent {% endblock %}
+{% block content %}
+    <style>
+      html,body {
+	height: 100%;
+    }
+
+    .global-container{
+        height:100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+    }
+
+    form{
+        padding-top: 10px;
+        font-size: 14px;
+        margin-top: 30px;
+    }
+
+    .card-title{ font-weight:300; }
+
+    .btn{
+        font-size: 14px;
+        margin-top:20px;
+    }
+
+
+    .login-form{
+        width:330px;
+        margin:20px;
+    }
+
+    .sign-up{
+        text-align:center;
+        padding:20px 0 0;
+    }
+
+    .alert{
+        margin-bottom:-30px;
+        font-size: 13px;
+        margin-top:20px;
+    }
+    </style>
+    <!-- Custom styles for this template -->
+<div class="global-container">
+	<div class="card login-form">
+	<div class="card-body">
+		<h3 class="card-title text-center">Registro Entidad</h3>
+		<div class="card-text">
+			<!--
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">Incorrect username or password.</div> -->
+			<form action="/register_ent" method="POST">
+				<table><!-- to error: add class "has-danger" -->
+					<tr>
+						<td>
+							<div class="form-group">
+								<label for="exampleInputEmail1">Nombre Entidad</label>
+								<input type="varchar(80)" class="form-control form-control-sm" name="N_ENTIDAD">
+							</div>
+						</td>
+						<td>
+							<div class="form-group">
+								<label> Nic </label>
+								<input type="int" class="form-control form-control-sm" name="NIC">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="form-group">
+								<label> email </label>
+								<input type="email" class="form-control form-control-sm" name="E_EMAIL">
+							</div>
+						</td>
+						<td>
+							<div class="form-group">
+								<label> País </label>
+								<input type="varchar(50)" class="form-control form-control-sm" name="E_PAIS">
+							</div>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							 <div class="form-group">
+								 <label for="exampleInputPassword1">Provincia</label>
+								 <input type="varchar(50)" class="form-control form-control-sm" name="E_PROVINCIA">
+							 </div>
+						</td>
+						<td>
+							 <div class="form-group">
+								 <label>Ciudad</label>
+								 <input type="varchar(50)" class="form-control form-control-sm" name="E_CIUDAD">
+							 </div>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							 <div class="form-group">
+								 <label>Dirección</label>
+								 <input type="varchar(50)" class="form-control form-control-sm" name="E_DIRECCION">
+							 </div>
+						</td>
+						<td>
+							 <div class="form-group">
+								 <label>Cant. Licencias</label>
+								 <input type="int" class="form-control form-control-sm" name="NUM_LICENCIAS">
+							 </div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							 <div class="form-group">
+								  <label>Fecha registro</label>
+								 <input type="date" class="form-control form-control-sm" name="F_INICIO" value="<?php echo date('Y-m-d');?>"  >
+							 </div>
+						</td>
+					</tr>
+
+
+				</table>
+
+				<button type="submit" class="btn btn-primary btn-block">Crea Entidad</button>
+
+			</form>
+		</div>
+	</div>
+</div>
+</div>
+
+{% endblock %}
