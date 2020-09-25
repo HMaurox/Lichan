@@ -2,16 +2,12 @@
 import hashlib
 import sys 
 import bcrypt
-from funciones_Li import Key_MD5
-from datetime import date
-from datetime import datetime
+from funciones_Li import claves_dinamicas
 import smtplib
 
 #conect  db 
 import pymysql
 
-tiempo = datetime.now()
-format = tiempo.strftime('Día :%d, Mes: %m, Año: %Y, Hora: %H, Minutos: %M, Segundos: %S')
 # Conectar con base de datos
 conexion = pymysql.connect(host="localhost", 
                            user="root", 
@@ -22,10 +18,7 @@ cursor = conexion.cursor()
    #consulta  de correo en base de datos 
 
 email = input("correo de acceso :" )
-concatec_email= email + format
-dinamic_pass= Key_MD5(concatec_email)
-
-
+codiguito = claves_dinamicas(email)
 # Recuperar registros de la tabla 'Usuarios'
 registros = "SELECT * FROM usuario;"
 
