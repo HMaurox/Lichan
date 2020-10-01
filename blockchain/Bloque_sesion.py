@@ -88,7 +88,9 @@ class BLOCKCHAIN_sesion:
 ##########################################################################################################################
 ######################                                   Minar Bloque                      ###############################
 ##########################################################################################################################
-
+usur= 'felie'
+t_us='2'
+t_acc='1'
 # colocamos el elace a  app Flask
 
 app = Flask(__name__)
@@ -99,12 +101,13 @@ blockchain_sesion = BLOCKCHAIN_sesion()  ## llamamos nuestro  clase
 
 ## mina solo un bloque 
 
+
 def minar_block():
     bloque_previo = blockchain_sesion.get_bloque_previo()
     proof_previo  = bloque_previo['proof']
     proof = blockchain_sesion.proof_of_work(proof_previo)
     hash_previo= blockchain_sesion.hash(bloque_previo)
-    BC_sesion = blockchain_sesion.crea_BC_sesion (proof,hash_previo,'Mauricio','1','1')
+    BC_sesion = blockchain_sesion.crea_BC_sesion (proof,hash_previo,usur,t_us,t_acc)
     response = {'message':'Felicidades, haz minado un bloque!',
                 'index':BC_sesion['index'],
                 'timestamp':BC_sesion['timestamp'],
