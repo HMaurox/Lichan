@@ -1,3 +1,4 @@
+
 # Bloque encargado de registrar en cadena de bloques los inicios de sesion de usuarios del aplicatico Lichain
 # Se registra   fechas de ingreso , fincalizacion de sesion , nombre de usuario
 # Universidad de San  Buenaventura de Cali - Proyecto de grado - Lichain 
@@ -77,7 +78,7 @@ class BLOCKCHAIN_sesion:
             if BC_sesion['hash_previo'] != self.hash(bloque_previo):
                 return False
             proof_previo = bloque_previo['proof']
-            proof = BC_sesion['proof']
+            nuevo_proof = BC_sesion['proof']
             hash_operation = hashlib.sha256(str(nuevo_proof**2 - proof_previo**2).encode()).hexdigest()
             if hash_operation[:6] != '000001':
                 return False
@@ -88,9 +89,7 @@ class BLOCKCHAIN_sesion:
 ##########################################################################################################################
 ######################                                   Minar Bloque                      ###############################
 ##########################################################################################################################
-usur= 'felie'
-t_us='2'
-t_acc='1'
+
 # colocamos el elace a  app Flask
 
 app = Flask(__name__)
@@ -101,13 +100,12 @@ blockchain_sesion = BLOCKCHAIN_sesion()  ## llamamos nuestro  clase
 
 ## mina solo un bloque 
 
-
 def minar_block():
     bloque_previo = blockchain_sesion.get_bloque_previo()
     proof_previo  = bloque_previo['proof']
     proof = blockchain_sesion.proof_of_work(proof_previo)
     hash_previo= blockchain_sesion.hash(bloque_previo)
-    BC_sesion = blockchain_sesion.crea_BC_sesion (proof,hash_previo,usur,t_us,t_acc)
+    BC_sesion = blockchain_sesion.crea_BC_sesion (proof,hash_previo,'Mauricio','1','1')
     response = {'message':'Felicidades, haz minado un bloque!',
                 'index':BC_sesion['index'],
                 'timestamp':BC_sesion['timestamp'],
@@ -127,14 +125,4 @@ def get_chain():
                  }
     return jsonify(response), 200
 
-app.run(host='0.0.0.0', port='5000') # configuracion 
-
-   
-    
-
-
-
-
-
-     
-    
+app.run(host='0.0.0.0', port='8080') # configuracion 

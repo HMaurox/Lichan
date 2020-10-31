@@ -1,3 +1,9 @@
+# Definicion estructura de los posibles bloques que pueden pertener  a la cadena de datos
+# se definde 
+# bloques de sesion : que registrara la actividad de lso usuarios
+# bloque  de usurio : contiene la informacion de un usuario y su nivel de acceso
+#  
+
 import hashlib 
 import sys
 import os 
@@ -7,15 +13,13 @@ import datetime
 import json 
 from flask import Flask, jsonify
 
- def bloque_sesion(self,proof,hash_previo,usuario,tipo_us,accion_us):
+def bloque_sesion(self,proof,hash_previo,usuario):
 
         #estructura de datos del bloque
         BC_sesion = {
             'index' : len(self.chain) +1, #se aumenta el indice de la cadena
             'timestamp': str(datetime.datetime.now()), # toma el  fecha (dia/mes) y hora del sistema (HH:MM:SS)
-            'Usuario':  usuario, #nombre del usuario que inicio sesion 
-            'Tipo_us':  tipo_us, # tipo de usuario (Adm (1) o usuario normal (2))
-            'Accion' :  accion_us, # 
+            'Usuario':  usuario, # id nombre del usuario que inicio sesion 
             'tipo_bloque':'1',
             'proof':proof , # resultado de la PoW
             'hash_previo': hash_previo # hash previo al bloque
@@ -23,7 +27,7 @@ from flask import Flask, jsonify
         self.chain.append(BC_sesion)
         return BC_sesion  # se retorna  el bloque parametrizado.
 
- def bloque_usuario(self,proof,hash_previo,nombre,apellido,rol,identidicacion,corre,us_hash,id_entidad,ciudad,provincia,pais,u_status):
+def bloque_usuario(self,proof,hash_previo,nombre,apellido,rol,identidicacion,correo,us_hash,id_entidad,ciudad,provincia,pais,u_status):
     
         #estructura de datos del bloque
         BC_usuario = {
@@ -82,8 +86,8 @@ def bloque_Licencia(self,proof,hash_previo,id_licencia,codigo,id_cliente,id_enti
             'Id_cliente': id_cliente,
             'Id_entidad': id_entidad,
             'fecha_activate': fecha_activate,
-            'status':l_status
-            'proof':proof ,
+            'status':l_status,
+            'proof': proof ,
             'hash_previo': hash_previo
             }
         self.chain.append(BC_licencia)

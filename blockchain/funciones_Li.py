@@ -7,6 +7,8 @@ from datetime import date      #modulo de captura de  fechas del sistema
 from datetime import datetime  #modulo de captura de  tiempo del sistema
 from PIL import Image, ImageDraw, ImageFont # Modulo para el procesamiento de plantillas y generacion de imagenes
 import os #  modulo para gestion del sistema.
+from re import split
+import re
 import pymysql #modulo de  conecion con DB
 
 #def
@@ -40,7 +42,7 @@ def claves_dinamicas(destinatario):
     CD_formato= dinamic_pass[0:4]+" "+dinamic_pass[28:32] #  codigo generado   
     
     #generacion de imagen
-    image = Image.open("clave_dina.jpg") # Plantilla
+    image = Image.open(r'D:\Usb\TESIS\Ts\Lichan\blockchain\clave_dina.jpg') # Plantilla
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype("arial.ttf", 44)
     draw.text((660,380), CD_formato, font=font, fill="Black")
@@ -62,9 +64,9 @@ def claves_dinamicas(destinatario):
     conexion = pymysql.connect(host="localhost", 
                            user="root", 
                            passwd="12345", 
-                           database="tester")
+                           database="blockchain")
     cursor = conexion.cursor()
-    SQL = "UPDATE usuario set Clave_dina= %s  Where Correo = %s"
+    SQL = "UPDATE usuario SET US_CLAVE_DINA= %s  WHERE CORREO = %s"
     clave=(CD_formato, destinatario) #actualizacion de clave
     cursor.execute(SQL,clave)
     conexion.commit()
@@ -74,12 +76,111 @@ def claves_dinamicas(destinatario):
     print("%s has been removed successfully" %Name_CD) 
     
     
+# Funcion de  envio de correos clave dinamicas#
+def Clave_out(destinatario):
+    #generacion de codigo
+    Cd_timepo = datetime.now()
+    format = Cd_timepo.strftime('Día :%d, Mes: %m, Año: %Y, Hora: %H, Minutos: %M, Segundos: %S')
+    concatec_email= destinatario + format
+    dinamic_pass= Key_MD5(concatec_email)
+    CD_formato= dinamic_pass[0:4]+" "+dinamic_pass[28:32] #  codigo generado   
+    
+    #Actualizacion de acceso en DB
+
+    # Conectar con base de datos
+    conexion = pymysql.connect(host="localhost", 
+                           user="root", 
+                           passwd="12345", 
+                           database="blockchain")
+    cursor = conexion.cursor()
+    SQL = "UPDATE usuario SET US_CLAVE_DINA= %s  WHERE CORREO = %s"
+    clave=(CD_formato, destinatario) #actualizacion de clave
+    cursor.execute(SQL,clave)
+    conexion.commit()
+    conexion.close()
+    #
+def cad_num (cadena):
+    caden=str(cadena)
+    cade = caden.strip(" ")
+    numero= split('\D+',cade)
+    if  numero[1]=='':
+         valor = 0
+    else:
+         valor = int(numero[1])
+    return valor
+def consulta_one_DB_STR(colum,tabla,condicion,valor):
+    Concate_sql = "SELECT `{}` FROM `{}` WHERE `{}` = {}".format(colum,tabla,condicion,valor)
+    
+    conexion = pymysql.connect(host="localhost", 
+                            user="root", 
+                            passwd="12345", 
+                            database="blockchain")
+    cursor = conexion.cursor()
+    SQL=Concate_sql
+    cursor.execute(SQL)
+    return cursor.fetchone() 
+
+    conexion.commit()
+    conexion.close()
+def consulta_varc_Str(colum,tabla,condicion,valor):
+
+    Concate_sql = "SELECT `{}` FROM `{}` WHERE `{}` = {}".format(colum,tabla,condicion,valor)
+    conexion = pymysql.connect(host="localhost", 
+                                    user="root", 
+                                    passwd="12345", 
+                                    database="blockchain")
+    cursor = conexion.cursor()
+    SQL=Concate_sql
+    cursor.execute(SQL)
+    result=cursor.fetchone()
+    retorno= re.sub(r'[^\w]','', str(result))
+    return retorno 
+    conexion.commit()
+    conexion.close()
+
+def consulta_correo(correo):
+    conexion = pymysql.connect(host="localhost", 
+                           user="root", 
+                           passwd="12345", 
+                           database="blockchain")
+                           
+    cursor = conexion.cursor()
+    SQL = "SELECT US_STATUS From usuario WHERE CORREO = %s"
+    clave=correo
+    cursor.execute(SQL,clave)
+    return cad_num (cursor.fetchone())
+
+    conexion.commit()
+    conexion.close()    
+def consulta_status_usuario(correo):
+    autorizacion=0
+    # primer nivel validar al usuario
+   
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
     
     
-    
-
-
-
+    estado_us= consulta_correo(correo) #estado del usuario
+    #print('us : '+ str(estado_us))
+    if estado_us==1:
+        #segundo nivel validar la empresa ligada al usuario
+        sql_empresa= "SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO = %s"
+        cursor.execute(sql_empresa,correo)
+        FK_empresa=cad_num(cursor.fetchone())
+        #print('empresa fk: '+ str(FK_empresa))
+        sql_empresa_Stado= "SELECT  E_STATUS FROM entidad WHERE ID_ENTIDAD =%s"
+        cursor.execute(sql_empresa_Stado,FK_empresa)
+        estado_empresa=cad_num(cursor.fetchone())
+        #print('empresa: '+ str(estado_empresa))
+        if estado_empresa==1:
+            autorizacion=1
+        else:
+            autorizacion=0    
+    else:
+        autorizacion=0
+    conexion.close()    
+    return autorizacion
+       
 
 
 #     
