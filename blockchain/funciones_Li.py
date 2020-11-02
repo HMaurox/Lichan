@@ -6,10 +6,12 @@ import smtplib   #modulo SMTP para envio de correos
 from datetime import date      #modulo de captura de  fechas del sistema
 from datetime import datetime  #modulo de captura de  tiempo del sistema
 from PIL import Image, ImageDraw, ImageFont # Modulo para el procesamiento de plantillas y generacion de imagenes
+from ElemenChain import minar_sesion
 import os #  modulo para gestion del sistema.
 from re import split
 import re
 import pymysql #modulo de  conecion con DB
+
 
 #def
 
@@ -31,7 +33,6 @@ def  licenciar(codigo_licencia):
     licencia=Format_L(Temp_lice)
     return licencia
 # parametros#
-
 # Funcion de  envio de correos clave dinamicas#
 def claves_dinamicas(destinatario):
     #generacion de codigo
@@ -74,8 +75,6 @@ def claves_dinamicas(destinatario):
     #
     os.remove(Name_CD)
     print("%s has been removed successfully" %Name_CD) 
-    
-    
 # Funcion de  envio de correos clave dinamicas#
 def Clave_out(destinatario):
     #generacion de codigo
@@ -137,7 +136,6 @@ def consulta_varc_Str(colum,tabla,condicion,valor):
     return retorno 
     conexion.commit()
     conexion.close()
-
 def consulta_correo(correo):
     conexion = pymysql.connect(host="localhost", 
                            user="root", 
@@ -180,8 +178,11 @@ def consulta_status_usuario(correo):
         autorizacion=0
     conexion.close()    
     return autorizacion
-       
-
-
-#     
+def generar_id_hash(CC,marca_tiempo,nombre,adm_cc,Con_bloque):
+    cadena= str(CC)+str(marca_tiempo)+str(nombre)+str(adm_cc)+'Generacion de ID para sistem Lichain'
+    minar_sesion(1)
+    hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque)
+    Cad_id_ud = cadena+hash_previo
+    hash_id=hashlib.sha256(Cad_id_ud).hexdigest()
+    return hash_id
 
