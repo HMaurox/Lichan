@@ -2,18 +2,18 @@
 import  hashlib  #libreria de hash
 from datetime import date      #modulo de captura de  fechas del sistema
 from datetime import datetime  #modulo de captura de  tiempo del sistema
-
-from PIL import Image, ImageDraw, ImageFont # Modulo para el procesamiento de plantillas y generacion de imagenes
-import os #  modulo para gestion del sistema.
-import pymysql #modulo de  conecion con DB
-import re
-import json 
 from funciones_Li import cad_num
 from funciones_Li import consulta_one_DB_STR
 from funciones_Li import consulta_varc_Str
 from funciones_Li import consulta_status_usuario
 from funciones_Li import claves_dinamicas
-from funciones_Li import generar_id_hash
+from PIL import Image, ImageDraw, ImageFont # Modulo para el procesamiento de plantillas y generacion de imagenes
+import os #  modulo para gestion del sistema.
+import pymysql #modulo de  conecion con DB
+import re
+import json 
+
+#from funciones_Li import generar_id_hash
 #se importan los bloques que contienen  la estructura del bloque a minar
 
 ## sesion 
@@ -87,63 +87,4 @@ def autorizacion_usuario(correo):
     else:
         autorizacion=0
     return autorizacion    
-##usuario
-#################################################################################
-def bloque_usuario(proof,hash_previo,nombre,apellido,rol,identidicacion,correo,us_hash,id_entidad,ciudad,provincia,pais,u_status,index):
-    #estructura de datos del bloque
-    Cd_timepo = datetime.now()
-    BC_usuario = {
-        'index' : index, 
-        'timestamp': Cd_timepo.strftime('%Y-%m-%d %H:%M:%S'),
-        'tipo_bloque':'2', 
-        'Nombre':  nombre, 
-        'Apellido':  apellido,
-        'ROL': rol, 
-        'Id_idendificacion' : identidicacion,
-        'Correo': correo,
-        'Us_Hash': us_hash,
-        'Id_entidad': id_entidad,
-        'Ciudad': ciudad,
-        'Provincia': provincia,
-        'Pais': pais,
-        'Status':u_status, 
-        'proof':proof ,
-        'hash_previo': hash_previo
-            }
-    return BC_usuario
-# Se mina el usuario para Activacion  del user 
-def activar_user(nombre, apellido,cc,correo,fk_entidad,pais,provincia,ciudad,rol,Adm):
-    #conexio a DB
-    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
-    cursor = conexion.cursor()
-    SQL="SELECT COUNT(*) FROM cadena"
-    cursor.execute(SQL)
-    #obtencion de data de db
-    len_cadena=cad_num(cursor.fetchall()[0])
-    Con_bloque= str(len_cadena-1)
-    Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
-    Index_nuevo=Index+1
-    Cd_timepo = datetime.now()
-    marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
-    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
-    proof =proof_of_work(proof_previo)
-    hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque) 
-    #Generacion de identidad unica de usuario 
-    us_hash=generar_id_hash(cc,marca_tiempo,nombre,Adm,Con_bloque)
-    #creasion de vloque y  validacion
-    BC_sesion= bloque_usuario(proof,hash_previo,nombre,apellido,rol,cc,correo,us_hash,fk_entidad,ciudad,provincia,pais,1,Index_nuevo)
-    hash_bloque=hash(BC_sesion)
-    Sql_up=("UPDATE `usuario` SET `US_HASH`= %s ,`US_STATUS`= %s  WHERE `CORREO`=%s")
-    complemento=(us_hash,correo)
-    cursor.execute(Sql_up,complemento)
-    Sql_up="INSERT INTO cadena (`Index`,`proof`,`time`,`Tipo_bloque`,`Hash_previo`,`ID_FK_entidad`) VALUES (%s,%s,%s,%s,%s,%s)"
-    complemento=(Index_nuevo,proof,marca_tiempo,2,hash_bloque,1)
-    cursor.execute(Sql_up,complemento)
-    conexion.commit()
-    conexion.close()
-
-
-
-
-
-
+##usuario#################################################################################
