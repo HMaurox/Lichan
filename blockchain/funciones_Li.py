@@ -186,8 +186,8 @@ def generar_id_hash(CC,marca_tiempo,nombre,adm_cc,Con_bloque):
     Cad_id_ud = cadena+hash_previo
     hash_id=hashlib.sha256(Cad_id_ud.encode('utf-8')).hexdigest()
     return hash_id
-##elemt
 
+##elemt
 def bloque_sesion(proof,hash_previo,entidad,index):
     Cd_timepo = datetime.now()
     #estructura de datos del bloque
@@ -227,7 +227,7 @@ def minar_sesion(FK_empresa):
     len_cadena=cad_num(cursor.fetchall()[0]) #consulta del numero de registros
     Con_bloque= str(len_cadena-1)
     Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
-    Index_nuevo=Index+1
+    Index_nuevo=int(Con_bloque)+1
     Cd_timepo = datetime.now()
     marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
     proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
@@ -258,7 +258,6 @@ def autorizacion_usuario(correo):
         autorizacion=0
     return autorizacion    
 ##usuario
-
 def bloque_usuario(proof,hash_previo,nombre,apellido,rol,identidicacion,correo,us_hash,id_entidad,ciudad,provincia,pais,u_status,index):
     #estructura de datos del bloque
     Cd_timepo = datetime.now()
@@ -292,7 +291,7 @@ def activar_user(nombre, apellido,cc,correo,fk_entidad,pais,provincia,ciudad,rol
     len_cadena=cad_num(cursor.fetchall()[0])
     Con_bloque= str(len_cadena-1)
     Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
-    Index_nuevo=Index+1
+    Index_nuevo=int(Con_bloque)+1
     Cd_timepo = datetime.now()
     marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
     proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
@@ -311,4 +310,55 @@ def activar_user(nombre, apellido,cc,correo,fk_entidad,pais,provincia,ciudad,rol
     cursor.execute(Sql_up,complemento)
     conexion.commit()
     conexion.close()
+#Entidad#
+#se define el bloque  que contiene la estructura de datos de entidad
+def bloque_entidad(proof,hash_previo,n_entidad,nic,n_correo,direccion,e_ciudad,e_provincia,e_pais,n_licencias,l_activas,e_status,Index):
+    Cd_timepo = datetime.now()
 
+    BC_entidad = {  
+        'index' : Index, 
+        'timestamp': Cd_timepo.strftime('%Y-%m-%d %H:%M:%S'),
+        'tipo_bloque':'3', 
+        'Nombre_entidad': n_entidad, 
+        'Nic':  nic, 
+        'Correo_entidad': n_correo,
+        'Direccion': direccion,
+        'E_Ciudad': e_ciudad,
+        'E_Provincia': e_provincia,
+        'E_Pais': e_pais,
+        'N_licencias': n_licencias,
+        'L_activas': l_activas, 
+        'Status':e_status,
+        'proof':proof ,
+        'hash_previo': hash_previo
+        }
+    return BC_entidad 
+def activar_enti(n_entidad,nic,n_correo,direccion,e_ciudad,e_provincia,e_pais,n_licencias,l_activas):
+    #conexio a DB
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    #obtencion de data de db
+    len_cadena=cad_num(cursor.fetchall()[0])
+    Con_bloque= str(len_cadena-1)
+    Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
+    Index_nuevo=int(Con_bloque)+1
+    Cd_timepo = datetime.now()
+    marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
+    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
+    proof =proof_of_work(proof_previo)
+    hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque) 
+    #Generacion de identidad unica de entidad 
+    IDE_hash=generar_id_hash(nic,marca_tiempo,n_entidad,'Lichain',Con_bloque)
+    #creasion de vloque y  validacion
+    BC_sesion = bloque_entidad(proof,hash_previo,n_entidad,nic,n_correo,direccion,e_ciudad,e_provincia,e_pais,n_licencias,l_activas,1,Index_nuevo)
+    hash_bloque=hash(BC_sesion)
+    Sql_up=("UPDATE `entidad` SET `ID_EHash`= %s ,`E_STATUS`= %s  WHERE `E_EMAIL`=%s")
+    complemento=(IDE_hash,1,n_correo)
+    cursor.execute(Sql_up,complemento)
+    Sql_up="INSERT INTO cadena (`Index`,`proof`,`time`,`Tipo_bloque`,`Hash_previo`,`ID_FK_entidad`) VALUES (%s,%s,%s,%s,%s,%s)"
+    complemento=(Index_nuevo,proof,marca_tiempo,3,hash_bloque,1)
+    cursor.execute(Sql_up,complemento)
+    conexion.commit()
+    conexion.close()
