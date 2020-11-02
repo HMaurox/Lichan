@@ -1,0 +1,87 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+
+    <br>
+    <center>
+
+      <table class="egt">
+
+         <tr>
+             <td></td>
+            <td>
+
+                <img src="static/user.png" width="100" height="120" class="d-inline-block align-top" alt="">
+
+            </td>
+           
+         </tr>
+        <tr>
+            <td></td>
+            <td><center>  <h6>{{ session['NOMBRE'] }}</h6>  </center></td>
+            <td></td>
+
+        </tr>
+      </table>
+
+      <table class="egt">
+
+          <tr>
+
+            <td>
+                <a class="btn btn-light" href="/register" role="button">
+                    <img src="static/registro.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="/act_lic" role="button">
+                    <img src="static/activar.png" width="120" height="60" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="/query" role="button">
+                    <img src="static/consultar.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td><h6>Registro</h6></td>
+            <td><h6>Activar Licencia</h6></td>
+            <td><h6>Consultar</h6></td>
+          </tr>
+
+          <tr>
+
+            <td>
+                <a class="btn btn-light" href="/buy_lic" role="button">
+                    <img src="static/carrito.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="/certificate" role="button">
+                    <img src="static/certificado.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="/support" role="button">
+                    <img src="static/soporte.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+          </tr>
+
+          <tr>
+            <td><h6>Comprar Licencia</h6></td>
+            <td><h6>Certificado</h6></td>
+            <td><h6>Soporte</h6></td>
+          </tr>
+
+        </table>
+    </center>
+<br><br>
+
+{% endblock %}

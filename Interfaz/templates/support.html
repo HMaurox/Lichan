@@ -1,0 +1,55 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+
+    <style>
+            table {
+                border: none;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px auto;
+                border: 0px solid #999;
+            }
+
+        </style>
+
+
+    <center>
+     <br>
+      <h1 class="display-4">Soporte Usuario</h1>
+      <br><br>
+      <table>
+       <tr>
+          <td>
+              <img src="static/user.png" width="40" height="60" class="d-inline-block align-center" alt="">
+              {{ session['NOMBRE'] }}
+          </td>
+           <td rowspan="3">
+                <center>
+
+                    Soporte:
+                    <form>
+                        <input type="text" class="form-control" placeholder="Ingrese solicitud" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <br><button class="btn btn-outline-secondary" type="button" id="button-addon2">Enviar</button>
+                    </form>
+                </center>
+           </td>
+       </tr>
+       <tr>
+          <td>
+              <img src="static/empresa_logo.png" width="40" height="60" class="d-inline-block align-center" alt="">
+              {{ session['EMPRESA'] }}
+          </td>
+       </tr>
+
+    </table>
+
+
+    </center>
+
+
+
+
+{% endblock %}

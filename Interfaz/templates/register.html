@@ -1,0 +1,36 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+
+    <br>
+    <center>
+
+      <br><br><br><br>
+      <h1 class="display-4">Solicitar Registro</h1>
+      <br><br>
+
+      <table class="egt">
+
+         <tr>
+
+            <td>
+                <a class="btn btn-light" href="/register_user" role="button">
+                    <img src="static/user.png" width="100" height="120" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+            <td>
+                <a class="btn btn-light" href="/register_ent" role="button">
+                    <img src="static/empresa_logo.png" width="100" height="120" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+         </tr>
+         <tr>
+
+            <td><center>  <h6>Usuario</h6>  </center></td>
+            <td><center>  <h6>Empresa</h6>  </center></td>
+
+         </tr>
+      </table>
+    </center>
+    <br>
+
+{% endblock %}

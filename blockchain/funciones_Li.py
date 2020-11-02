@@ -291,10 +291,10 @@ def activar_user(nombre, apellido,cc,correo,fk_entidad,pais,provincia,ciudad,rol
     len_cadena=cad_num(cursor.fetchall()[0])
     Con_bloque= str(len_cadena-1)
     Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
-    Index_nuevo=int(Con_bloque)+1
+    Index_nuevo=int(Con_bloque)+2
     Cd_timepo = datetime.now()
     marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
-    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
+    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Index))
     proof =proof_of_work(proof_previo)
     hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque) 
     #Generacion de identidad unica de usuario 
@@ -343,10 +343,12 @@ def activar_enti(n_entidad,nic,n_correo,direccion,e_ciudad,e_provincia,e_pais,n_
     len_cadena=cad_num(cursor.fetchall()[0])
     Con_bloque= str(len_cadena-1)
     Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
-    Index_nuevo=int(Con_bloque)+1
+    Index_nuevo=int(Con_bloque)+2
     Cd_timepo = datetime.now()
     marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
-    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
+    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Index))
+    print(proof_previo)
+    print(Index)
     proof =proof_of_work(proof_previo)
     hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque) 
     #Generacion de identidad unica de entidad 

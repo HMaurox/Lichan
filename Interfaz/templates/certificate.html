@@ -1,0 +1,58 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+
+
+
+    <center>
+     <br>
+      <h1 class="display-4">Sistema de Certificados</h1>
+      <br><br>
+      <table>
+           <tr>
+              <td>
+                  <img src="static/user.png" width="40" height="60" class="d-inline-block align-center" alt="">
+                  {{ session['NOMBRE'] }}
+              </td>
+
+               <td>
+                  <img src="static/empresa_logo.png" width="40" height="60" class="d-inline-block align-center" alt="">
+                  {{ session['EMPRESA'] }}
+              </td>
+           </tr>
+      </table>
+
+
+        LICENCIA:
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>CÓDIGO</th>
+                <th>STATUS</th>
+                <th>SELECCIONAR</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in licencia %}
+                <tr>
+                    <td>{{ row.ID_LICENCIA }}</td>
+                    <td>{{ row.L_CODIGO }}</td>
+                    <td>
+                        {% if row.STATUS == 0  %}
+                            Inactiva
+                        {% else %}
+                            Activa
+                        {% endif %}
+                    </td>
+                    <td>
+                         <a href="/gen_cert/{{ row.L_CODIGO }}/{{ row.STATUS }}" class="btn btn-danger " > Certificar </a>
+                    </td>
+                </tr>
+            </tbody>
+            {% endfor %}
+
+    </center>
+
+
+
+{% endblock %}

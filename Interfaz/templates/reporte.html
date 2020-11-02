@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,700" rel="stylesheet">
+    <style>
+        html, body{ height: 70%; }
+        body{
+            background-color: #DDECF4
+            background-size: 100% 100%;
+            font-family: 'Poppins';
+            font-weight: 300;
+            height: 100%;
+            text-align: center;
+            color:#262B34;
+        }
+        .bold{
+            font-wight: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="padding-top_80px;">
+        <div>
+
+            <h1 class="bold"> Lichain Certifica que:  </h1>
+
+            <p style="margin-bottom:0px;margin-top:25px;" class="light">  EL Usuario: </p>
+            <p style="font-size:2.4em;color:#1BBC9B;margin:0px;" class="bold"> {{ nombre }}</p>
+
+            <br>
+            <br>
+            <p style="margin:0px;"> Perteneciente a la empresa: </p>
+            <h2 style="max-width:600px;margin: 25px auto;font-size:3em;" class="bold"> {{ empresa }}</h2>
+
+            <p style="margin:0px;"> Cuenta con la Licencia : </p>
+            <p style="font-size:0.7em;" class="bold"> {{ licencias }}  </p>
+
+            <br>
+            <br>
+            <p style="margin:0px;"> Y se encuentra a la fecha : </p>
+            <p style="font-size:0.7em;" class="bold"> {{ status }} </p>
+
+
+        </div>
+        <br><br>
+        <script type="text/javascript">
+                    var mm = new Date();
+                    var m2 = mm.getMonth() + 1;
+                    var mesok = (m2 < 10) ? '0' + m2 : m2;
+                    var mesok = new Array(12);
+                    var dia = new Array(7);
+                    mesok[0]="Enero";
+                    mesok[1]="Febrero";
+                    mesok[2]="Marzo";
+                    mesok[3]="Abril";
+                    mesok[4]="Mayo";
+                    mesok[5]="Junio";
+                    mesok[6]="Julio";
+                    mesok[7]="Agosto";
+                    mesok[8]="Septiembre";
+                    mesok[9]="Octubre";
+                    mesok[10]="Noviembre";
+                    mesok[11]="Diciembre";
+                    dia[0]="Domingo";
+                    dia[1]="Lunes";
+                    dia[2]="Martes";
+                    dia[3]="Miercoles";
+                    dia[4]="Jueves";
+                    dia[5]="Viernes";
+                    dia[6]="Sabado";
+                    document.write("Expedido a la fecha de: " + dia[mm.getDay()]," , " + mesok[mm.getMonth()]," " + mm.getDate()," " + mm.getFullYear());
+          </script>
+
+
+    </div>
+
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+        <style>
+            table {
+                border: none;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px 300px;
+                border: 0px solid #999;
+            }
+
+            tr:nth-child(1) {
+
+            }
+        </style>
+
+        <table  >
+            <tr>
+                <td >
+                    <img  src="static/user.png" width="40" height="50" class="d-inline-block " alt="">
+                    <h6> {{ session['NOMBRE'] }} </h6>
+                </td>
+                <td >
+                    <img src="static/empresa_logo.png"  width="40" height="50" class="d-inline-block" alt="">
+                    <h6>  {{ session['EMPRESA'] }} </h6>
+                </td>
+            </tr>
+
+        </table>
+
+    <center>
+
+
+
+      <h1 class="display-4">Activar Licencia </h1>
+      <br><br>
+
+       <table>
+            <tr>
+                <td >
+                    <center>
+                        <img src="static/candado.png"  width="40" height="50" class="d-inline-block align-top" alt="">
+                        <img  src="static/cuadros_lic.png" width="50" height="50" class="d-inline-block align-top" alt="">
+                        <img src="static/codigos.png"  width="80" height="50" class="d-inline-block" alt="">
+                    </center>
+                </td>
+
+            </tr>
+            <tr>
+                <td >
+                    <center>
+                    <form action="/act_lic" method='POST'>
+                        <form class="form-inline" action="{{ url_for('act_lic') }}">
+								 <label>Licencia</label>
+									<select name="L_CODIGO" class="selectpicker form-control">
+											  {% for row in licencia %}
+											  	<option value="{{ row.ID_ENTIDAD }}">{{ row.L_CODIGO }}</option>
+											  {% endfor %}
+									</select>
+                        </form>
+                        <button type="submit" class="btn btn-primary btn-block">Activar</button>
+                    </form>
+                    </center>
+                </td >
+            </tr>
+
+       </table>
+
+    </center>
+    <br>
+
+        <table  >
+            <tr>
+                <td >
+                    <img  src="static/candado.png" width="40" height="50" class="d-inline-block " alt="">
+                    <h6>  {{ session['LIC_ACT'] }} </h6>
+                </td>
+                <td >
+                    <img src="static/candado-cerrado.png"  width="40" height="50" class="d-inline-block" alt="">
+                    <h6>  {{ session['LIC_INACT'] }} </h6>
+                </td>
+            </tr>
+
+        </table>
+
+{% endblock %}

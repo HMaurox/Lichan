@@ -1,0 +1,90 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+
+    <style>
+            table {
+                border: none;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px auto;
+                border: 0px solid #999;
+            }
+
+
+        </style>
+
+
+
+    <center>
+     <br>
+      <h1 class="display-4">Sistema de Compra de Licencias </h1>
+      <br><br>
+      <table>
+       <tr>
+          <td>
+              <img src="static/user.png" width="40" height="60" class="d-inline-block align-center" alt="">
+              {{ session['NOMBRE'] }}
+          </td>
+           <td rowspan="3">
+                <center>
+                    <img src="static/carrito.png"  width="120" height="120" class="d-inline-block" alt="">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button">Adquirir</button>
+                  </div>
+                  <select class="custom-select" id="inputGroupSelect03" aria-label="Example select with button addon">
+                    <option selected>Cantidad...</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                  </select>
+                </div>
+                </center>
+           </td>
+       </tr>
+       <tr>
+          <td>
+              <img src="static/empresa_logo.png" width="40" height="60" class="d-inline-block align-center" alt="">
+              {{ session['EMPRESA'] }}
+          </td>
+       </tr>
+       <tr>
+          <td>
+              <img src="static/activar.png" width="60" height="40" class="d-inline-block align-center" alt="">
+              Licencia
+          </td>
+       </tr>
+
+    </table>
+
+        <br>
+
+    <table>
+        <tr>
+            <td>
+                <img  src="static/candado.png" width="40" height="50" class="d-inline-block " alt="">
+
+            </td>
+            <td>
+                <img  src="static/candado-cerrado.png" width="40" height="50" class="d-inline-block " alt="">
+                <h6>  {{ session['LIC_ACT'] }} </h6>
+            </td>
+            <td>
+                <img  src="static/candado_roto.png" width="40" height="50" class="d-inline-block " alt="">
+            </td>
+        </tr>
+    </table>
+
+
+    </center>
+
+
+
+
+{% endblock %}
