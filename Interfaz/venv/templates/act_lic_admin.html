@@ -1,0 +1,80 @@
+{% extends 'layout_session_adm.html' %}
+{% block content %}
+
+<style>
+
+.myblock{
+    border:1px solid green;
+    border-radius: 5%;
+    background: rgba(0,0,0,0);
+    margin-top:10%;
+    margin-right:90%;
+    padding:3%;
+}
+.h1{
+    margin-bottom:5% ;
+    color:black;
+}
+.mybtn{
+ background: rgba(0,0,0,0.1);
+}
+
+</style>
+
+
+<center>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-12"></div>
+        <div class="col-lg-4 col-md-6 col-sm-12 myblock">
+            <h1 class="h1">Ingresa Empresa</h1>
+            <form action="/act_lic" method="POST" class="form-group">
+
+                <div class="form-group">
+                    <input type="text" name="N_ENTIDAD" placeholder="Empresa" class="form-control" required>
+                </div>
+
+
+                <div>
+                    <button type="submit" class="btn btn-block btn-white  mybtn link">Enviar</button>
+                </div>
+
+            </form>
+
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-12"></div>
+    </div>
+</div>
+    {% if licencia %}
+         LICENCIA:
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>CÓDIGO</th>
+                    <th>STATUS</th>
+                    <th>SELECCIONAR</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in licencia %}
+                    <tr>
+                        <td>{{ row.ID_LICENCIA }}</td>
+                        <td>{{ row.L_CODIGO }}</td>
+                        <td>
+                            {% if row.STATUS == 0  %}
+                                Inactiva
+                            {% else %}
+                                Activa
+                            {% endif %}
+                        </td>
+                        <td>
+                             <a href="/gen_cert/{{ row.L_CODIGO }}/{{ row.STATUS }}" class="btn btn-danger "> Activar </a>
+                        </td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+    {% endif %}
+</center>
+
+{% endblock %}

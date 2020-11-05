@@ -1,0 +1,106 @@
+{% extends 'layout_session.html' %}
+{% block content %}
+        <style>
+            table {
+                border: none;
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            td {
+                padding: 5px 300px;
+                border: 0px solid #999;
+            }
+
+            tr:nth-child(1) {
+
+            }
+        </style>
+
+        {% if res %}
+            <div class="alert alert-warning" role="alert">
+            Respuesta del sistema:  <a href="#" class="alert-link"> {{res}}</a>.
+            </div>
+        {% endif %}
+
+        <table  >
+            <tr>
+                <td >
+                    <img  src="static/user.png" width="40" height="50" class="d-inline-block " alt="">
+                    <h6> {{ session['NOMBRE'] }} </h6>
+                </td>
+                <td >
+                    <img src="static/empresa_logo.png"  width="40" height="50" class="d-inline-block" alt="">
+                    <h6>  {{ session['EMPRESA'] }} </h6>
+                </td>
+            </tr>
+
+        </table>
+
+    <center>
+
+
+
+      <h1 class="display-4">Activar Licencia </h1>
+      <br><br>
+      
+        <form action="/act_lic" method="POST">
+            
+            <table>
+                    <tr>
+                        <td >
+                            <center>
+                                <img src="static/candado.png"  width="70" height="80" class="d-inline-block align-top" alt="">
+                                <img  src="static/cuadros_lic.png" width="80" height="80" class="d-inline-block align-top" alt="">
+                                <img src="static/codigos.png"  width="110" height="80" class="d-inline-block" alt="">
+                            </center>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <center>
+                               {% if response_cod_li %}
+                                 <H3>{{ response_cod_li }}</H3>
+                                {% endif %} 
+                            </center>
+                            
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td >
+                            <center>
+                                <button type="submit" class="btn btn-primary btn-lg">Activar</button>
+                            </center>
+                            
+                        </td>
+                        
+                    </tr>
+                    
+            </table>
+
+        </form> 
+    </center>
+    <br>
+
+        <table>
+            <tr>
+                <td >
+                    <img  src="static/candado.png" width="40" height="50" class="d-inline-block " alt="">
+                    <h4> Licencias Inactivas: {{Lic_Inactivas}} </h4>
+                </td>
+                <td >
+                    <img src="static/candado-cerrado.png"  width="40" height="50" class="d-inline-block" alt="">
+                    <h4> Licencias Activas: {{Lic_Activas}} </h4>
+                </td>
+                <td >
+                    <img src="static/candado_roto.png"  width="40" height="50" class="d-inline-block" alt="">
+                    <h4> Licencias Vecnidas: {{Lic_Vencidas}} </h4>
+                </td>
+            </tr>
+
+        </table>
+
+{% endblock %}

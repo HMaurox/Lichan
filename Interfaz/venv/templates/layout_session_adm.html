@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Lichain</title>
+</head>
+<body style="background-color:#F7F9F9">
+
+   <style>
+
+       .header {
+          background-size: cover;
+        }
+       .header .navbar {
+          background: url(static/navbar_fondo.png) ;
+        }
+
+        .footer {
+          position:fixed;
+          left:0px;
+          bottom:0px;
+          height:80px;
+          width:100%;
+          background: url(static/fondo_footer.jpg) ;
+          background-size: cover;
+        }
+        body {
+          margin: 0 auto;
+          margin-bottom: 40px;
+        }
+        content {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+   </style>
+
+
+   <header class="header">
+      <nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark">
+      <a class="navbar-brand" href="/">
+        <img src="static/cuadro.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        Lichain
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+              </li>
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="/logout">Cerrar Sesión <span class="sr-only">(current)</span></a>
+                </li>
+               </ul>
+            </form>
+          </div>
+    </nav>
+   </header>
+
+
+    {% block content %}{% endblock %}
+
+
+
+
+</body>
+</html>

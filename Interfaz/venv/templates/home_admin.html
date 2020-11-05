@@ -1,0 +1,103 @@
+
+{% extends 'layout_session_adm.html' %}
+{% block content %}
+
+    <br><br>
+
+    <center>
+
+    <table class="egt">
+
+         <tr>
+            <td>
+                <a class="btn btn-light" href="#" role="button">
+                    <img src="static/user.png" width="100" height="120" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+            <td>
+                Usuario_admin: {{ session['NOMBRE'] }}
+                 <br>{{ session['EMPRESA'] }}
+                 <br>{{ session['LIC_ACTIVAS'] }}
+
+            </td>
+          </tr>
+
+    </table>
+
+      <table class="egt">
+
+          <tr>
+
+            <td>
+                <a class="btn btn-light" href="/register" role="button">
+                    <img src="static/registro.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="/act_lic" role="button">
+                    <img src="static/activar.png" width="120" height="60" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="/query" role="button">
+                    <img src="static/consultar.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+            <td>
+                <a class="btn btn-light" href="/validate" role="button">
+                    <img src="static/validar.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td><h6>Registro</h6></td>
+            <td><h6>Activar Licencia</h6></td>
+            <td><h6>Consultar</h6></td>
+            <td><h6>Validar</h6></td>
+          </tr>
+
+          <tr>
+
+            <td>
+                <a class="btn btn-light" href="#" role="button">
+                    <img src="static/carrito.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="#" role="button">
+                    <img src="static/certificado.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="#" role="button">
+                    <img src="static/soporte.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+            <td>
+                <a class="btn btn-light" href="#" role="button">
+                    <img src="static/informe.png" width="90" height="90" class="d-inline-block align-top" alt="">
+                </a>
+            </td>
+
+          </tr>
+
+          <tr>
+            <td><h6>Comprar Licencia</h6></td>
+            <td><h6>Certificado</h6></td>
+            <td><h6>Soporte</h6></td>
+            <td><h6>Informe</h6></td>
+          </tr>
+
+        </table>
+    </center>
+<br><br>
+
+    </div>
+
+{% endblock %}

@@ -364,3 +364,154 @@ def activar_enti(n_entidad,nic,n_correo,direccion,e_ciudad,e_provincia,e_pais,n_
     cursor.execute(Sql_up,complemento)
     conexion.commit()
     conexion.close()
+### Licencias
+def  Li_total(ID_empresa):
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()    
+    SQL="SELECT NUM_LICENCIAS FROM entidad WHERE ID_ENTIDAD=%s"
+    cursor.execute(SQL,ID_empresa)
+    N_total= str(cad_num(cursor.fetchall()[0]))
+    return N_total
+    conexion.commit()
+    conexion.close()
+def Li_Acti(ID_empresa):
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()    
+    #se obtiene el numero de licencias activas
+    SQL="SELECT COUNT(*) FROM licencia WHERE FK_ID_ENTIDAD=%s AND STATUS=1"
+    cursor.execute(SQL,ID_empresa)
+    N_Act= str(cad_num(cursor.fetchall()[0]))
+    return N_Act
+    conexion.commit()
+    conexion.close()
+def Li_Ven(ID_empresa):
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()    
+    #se obtiene el numero de licencias activas
+    SQL="SELECT COUNT(*) FROM licencia WHERE FK_ID_ENTIDAD=%s AND STATUS=2"
+    cursor.execute(SQL,ID_empresa)
+    N_Ven= str(cad_num(cursor.fetchall()[0]))
+    return N_Ven
+    conexion.commit()
+    conexion.close()    
+def Li_Dis(ID_empresa):
+     
+    Li_t= int(Li_total(ID_empresa))
+    Li_activ= int(Li_Acti(ID_empresa))
+    Li_venc=int(Li_Ven(ID_empresa))
+    
+    Li_dipo= str(Li_t-(Li_activ+Li_venc))
+    return Li_dipo
+    
+
+
+def bloque_Licencia(proof,hash_previo,L_t,L_a,L_v,L_d,id_cliente,id_entidad,fecha_activate,l_status,Index):
+    Cd_timepo = datetime.now()
+        #estructura de datos del bloque
+    BC_licencia = {
+        'index' : Index, 
+        'timestamp': Cd_timepo.strftime('%Y-%m-%d %H:%M:%S'),
+        'tipo_bloque':'4', 
+        'Li_T':  L_t,
+        'Li_A':  L_a,
+        'Li_v':  L_v,
+        'Li_d':  L_d, 
+        'Id_cliente': id_cliente,
+        'Id_entidad': id_entidad,
+        'fecha_activate': fecha_activate,
+        'status':l_status,
+        'proof': proof ,
+        'hash_previo': hash_previo
+        }
+    return(BC_licencia)
+
+def activar_li(CORREO):
+   #se valida que el usuario  y la empresa  esten habilitados para activar licencias
+   status_li=0
+   valor = consulta_status_usuario(CORREO)
+   if valor==1:
+       #se  carga el numero de licencias
+
+       #conexio a DB
+        conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+        cursor = conexion.cursor()
+        #obtemos  el ID de la entidad a la que pertenece  el usuario
+        SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO=%s"
+        cursor.execute(SQL,CORREO)
+        Con_empresa=cad_num(cursor.fetchone())
+        #obtenemos el numero  de licencias que posee el usuario
+        L_total= int(Li_total(Con_empresa)) #licencias totales de la entidad
+        L_Acti=  int(Li_Acti(Con_empresa))  #licencias activas de la entidad
+        L_Ven=   int(Li_Ven(Con_empresa))   #licencias vencidas de la  entidad
+        L_di=    int(Li_Dis(Con_empresa))   #licencias disponibles de la entidad
+
+        if(L_di>0):
+            ##validaciones
+            status_li='1'
+            
+            #se inicia proceso de activacion 
+            conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+            cursor = conexion.cursor()
+            SQL="SELECT COUNT(*) FROM cadena"
+            cursor.execute(SQL)
+            #obtencion de data de db
+            len_cadena=cad_num(cursor.fetchall()[0])
+            Con_bloque= str(len_cadena-1)
+            Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
+            Index_nuevo=int(Con_bloque)+2
+            Cd_timepo = datetime.now()
+            marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
+            proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Index))
+           
+          
+            proof =proof_of_work(proof_previo)
+            hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque)
+            #Obtener el ID del usuario#
+            SQL="SELECT ID_Usuario FROM usuario WHERE CORREO=%s"
+            cursor.execute(SQL,CORREO)
+            ID_us_L= cad_num(cursor.fetchone()) 
+            BC_sesion = bloque_Licencia(proof,hash_previo,L_total,L_Acti,L_Ven,L_di,ID_us_L,Con_empresa,marca_tiempo,1,Index_nuevo)
+            hash_bloque=hash(BC_sesion)
+            #Generacion del codigo de licencia
+            Codigo_li = licenciar(hash_bloque)
+            #Actuaizacion de licencia
+            Sql_li="INSERT INTO licencia (`COD_SHA`,`L_CODIGO`,`FK_ID_CLIENTE`,`FK_ID_ENTIDAD`,`TIME_ACT_L`,`STATUS`) VALUES(%s,%s,%s,%s,%s,%s)"
+            compl_li=(hash_bloque,Codigo_li,ID_us_L,Con_empresa,marca_tiempo,1)
+            cursor.execute(Sql_li,compl_li)
+            conexion.commit()
+            Sql_up="INSERT INTO cadena (`Index`,`proof`,`time`,`Tipo_bloque`,`Hash_previo`,`ID_FK_entidad`) VALUES (%s,%s,%s,%s,%s,%s)"
+            complemento=(Index_nuevo,proof,marca_tiempo,4,hash_bloque,Con_empresa)
+            cursor.execute(Sql_up,complemento)
+            conexion.commit()
+            conexion.close()
+            return status_li
+        elif(L_di==0):
+            ## Mensaje de error  
+            status_li = '2'
+            return status_li
+                
+   else:
+       status_li= '3'
+       return status_li  
+def Obt_cod(CORREO):
+    #conexio a DB
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    #obtemos  el ID de la entidad a la que pertenece  el usuario
+    SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO=%s"
+    cursor.execute(SQL,CORREO)
+    Con_empresa=cad_num(cursor.fetchone())
+    SQL="SELECT ID_Usuario FROM usuario WHERE CORREO=%s"
+    cursor.execute(SQL,CORREO)
+    ID_us_L= cad_num(cursor.fetchone()) 
+    SQL="SELECT MAX(ID_LICENCIA) FROM licencia WHERE FK_ID_CLIENTE=%s AND FK_ID_ENTIDAD=%s"
+    comple=(ID_us_L,Con_empresa)
+    cursor.execute(SQL,comple)
+    id_cod = cad_num(cursor.fetchone())
+    SQL="SELECT L_CODIGO FROM licencia WHERE ID_LICENCIA=%s"
+    cursor.execute(SQL,id_cod)
+    tempo_cod=str(cursor.fetchone())
+    CODIGO_act= Format_L(re.sub(r'[^\w]','', str(tempo_cod)))
+    conexion.commit()
+    conexion.close()
+    return CODIGO_act 

@@ -1,0 +1,109 @@
+{% extends 'layout_session_adm.html' %}
+{% block content %}
+
+<br>
+    <center>
+
+      <br><br><br><br>
+      <h1 class="display-4">Validar Solicitudes:</h1>
+      <br><br>
+
+
+      <table class="egt">
+        <form action="/validate" method="POST" class="form-group">
+             <tr>
+
+                <td>
+                    <button  type="submit" class="btn btn-light" id="user" name="gender" value="user" role="button">
+                        <img src="static/user.png" width="100" height="120" class="d-inline-block align-top" alt="">
+                    </button>
+                </td>
+                <td>
+                    <button  type="submit" class="btn btn-light" id="ent" name="gender" value="ent" role="button">
+                        <img src="static/empresa_logo.png" width="100" height="120" class="d-inline-block align-top" alt="">
+                    </button>
+                </td>
+
+             </tr>
+             <tr>
+
+                <td><center>  <h6>Usuario</h6>  </center></td>
+                <td><center>  <h6>Empresa</h6>  </center></td>
+
+             </tr>
+        </form>
+      </table>
+
+
+            {% if usuario %}
+                <table class="table" >
+                    <thead>
+                    <tr>
+                        <th>NOMBRE</th>
+                        <th>APELLIDO</th>
+                        <th>IDENTIFICACIÓN</th>
+                        <th>CORREO</th>
+                        <th>EMPRESA</th>
+
+                        <th>ESTADO</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in usuario %}
+                            <tr>
+                                <td>{{ row.NOMBRE }}</td>
+                                <td>{{ row.APELLIDO }}</td>
+                                <td>{{ row.ID_IDENTIFICACION }}</td>
+                                <td>{{ row.CORREO }}</td>
+                                <td>  {{ row.FK_ID_ENTIDAD }}</td>
+
+                                <td>
+                                    {% if row.US_STATUS == 0  %}
+                                        Inactiva
+                                    {% else %}
+                                        Activa
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+            {% if entidad %}
+                <table class="table" >
+                    <thead>
+                    <tr>
+                        <th>ENTIDAD</th>
+                        <th>NIC</th>
+                        <th>EMAIL</th>
+
+
+                        <th>ESTADO</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in entidad %}
+                            <tr>
+                                <td>{{ row.N_ENTIDAD }}</td>
+                                <td>{{ row.NIC }}</td>
+                                <td>{{ row.E_EMAIL }}</td>
+
+
+                                <td>
+                                    {% if row.E_STATUS == 0  %}
+                                        Inactiva
+                                    {% else %}
+                                        Activa
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+    </center>
+    <br>
+
+{% endblock %}
