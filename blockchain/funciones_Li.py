@@ -11,6 +11,7 @@ from re import split
 import re
 import pymysql #modulo de  conecion con DB
 import json 
+import qrcode
 import os
 
 
@@ -403,8 +404,6 @@ def Li_Dis(ID_empresa):
     Li_dipo= str(Li_t-(Li_activ+Li_venc))
     return Li_dipo
     
-
-
 def bloque_Licencia(proof,hash_previo,L_t,L_a,L_v,L_d,id_cliente,id_entidad,fecha_activate,l_status,Index):
     Cd_timepo = datetime.now()
         #estructura de datos del bloque
@@ -515,3 +514,233 @@ def Obt_cod(CORREO):
     conexion.commit()
     conexion.close()
     return CODIGO_act 
+
+def comprar_li (numer_L,correo):
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    #obtemos  el ID de la entidad a la que pertenece  el usuario
+    SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO=%s"
+    cursor.execute(SQL,correo)
+    id_enti=cad_num(cursor.fetchone())
+    num_lic= int(Li_total(id_enti))   
+    add_num= int(numer_L)
+    ## en este segmento se ingresaria  validacion de pago si se desea agregar 
+    ## algun agente bancario
+    store_L=  num_lic + add_num
+    #validamos la transaccion
+    minar_sesion(id_enti)
+    SQL="UPDATE `entidad` SET `NUM_LICENCIAS`=%s WHERE `ID_ENTIDAD`=%s"
+    comple=(store_L,id_enti)
+    cursor.execute(SQL,comple)
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    #obtencion de data de db
+    len_cadena=cad_num(cursor.fetchall()[0])
+    conexion.commit()
+    SQL="SELECT Hash_previo FROM cadena WHERE Id_Cadena=%s"
+    cursor.execute(SQL,(len_cadena+1))
+    hash_transa= cursor.fetchone()
+    hashin=re.sub(r'[^\w]','',str(hash_transa))
+    conexion.commit()
+    conexion.close()
+    return hashin
+
+def certi_us(CORREO):      
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    #consultas#
+    SQL="SELECT NOMBRE FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_nombre = cursor.fetchone()[0]
+    SQL="SELECT APELLIDO FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_apellido=cursor.fetchone()[0]
+    SQL="SELECT ID_IDENTIFICACION FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    CC_us=str(cursor.fetchone()[0])
+    SQL="SELECT PAIS FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_pa=cursor.fetchone()[0]
+    SQL="SELECT PROVINCIA FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_pr=cursor.fetchone()[0]
+    SQL="SELECT CIUDAD FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_ci=cursor.fetchone()[0]
+    ubicacion = temp_ci+'-'+temp_pr+'-'+temp_pa
+    SQL="SELECT US_HASH FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    hash_us=cursor.fetchone()[0]
+    SQL="SELECT US_STATUS FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    estatus=cursor.fetchone()[0]
+    print(estatus)
+    if(estatus==1):
+        esta_u='Activo'
+    else:
+        esta_u='Inactivo'        
+    nombre = temp_nombre+' '+temp_apellido
+    SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    id_enti=cursor.fetchone()[0]
+    SQL="SELECT N_ENTIDAD FROM entidad WHERE ID_ENTIDAD = %s"
+    cursor.execute(SQL,id_enti)
+    enti_us=cursor.fetchone()[0]
+    minar_sesion(id_enti)
+    conexion.commit()
+
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    len_cadena=cad_num(cursor.fetchall()[0])
+    SQL="SELECT Hash_previo FROM cadena WHERE Id_Cadena=%s"
+    cursor.execute(SQL,len_cadena)
+    hash_t=cursor.fetchone()[0]
+    Cd_timepo = datetime.now()
+    marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
+    Cer_dia = Cd_timepo.strftime('%d')
+    Cer_mes = Cd_timepo.strftime('%m')
+    Cer_ano = Cd_timepo.strftime('%Y')
+    Cer_hora = Cd_timepo.strftime('%H:%M:%S')
+
+    hash_QR = hash_us + ' - ' + hash_t + '- Firma Digital -' + marca_tiempo + '- Sistema de licensamiento - LICHAIN - '
+    conexion.commit()
+    conexion.close()
+    
+    #Generacion de QR#
+    qr = qrcode.QRCode(
+    version=12,
+    error_correction=qrcode.constants.ERROR_CORRECT_H,
+    box_size=5.9,
+    border=4
+    )
+    qr.add_data(hash_QR)
+    qr.make()
+    im2 = qr.make_image(fill_color="black", back_color="#ffffff")    
+    im1=Image.open("blockchain/plan_us.jpg")
+    back_im = im1.copy()
+    back_im.paste(im2,(1390,504))
+    #texto#
+    draw = ImageDraw.Draw(back_im)
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",55 )
+    #textos#
+
+    text = nombre  
+    draw.text((510,534), text , font=font, fill="Black",align="center")
+    
+    text = 'Con C.c ' + CC_us
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Italic.otf",30)  
+    draw.text((570,590), text , font=font, fill="Black",align="center")
+
+    text = esta_u
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",35)  
+    draw.text((465,690), text , font=font, fill="Black",align="center")
+   
+    text = "Se encuentra " +"                    "+ " en la plataforma de licenciamiento \n como gestor de las licencias de la entidad "
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Regular.otf",35)  
+    draw.text((235,690), text , font=font, fill="Black",align="center")
+
+    text = enti_us
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",55)  
+    draw.text((255,790), text , font=font, fill="Black",align="center")
+
+    text = 'Certificado emitido a los '+ Cer_dia + ' del ' + Cer_mes + ' del ' + Cer_ano  
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Italic.otf",35)  
+    draw.text((380,890), text , font=font, fill="Black",align="center")
+
+
+    back_im.save('blockchain/temporal.pdf')
+def certi_en(CORREO):
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    #consultas#
+    #id_entidad
+    SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    id_enti=cursor.fetchone()[0]
+    #nic
+    SQL="SELECT NIC FROM entidad WHERE ID_ENTIDAD = %s"
+    cursor.execute(SQL,id_enti)
+    CC_en=str(cursor.fetchone()[0])
+    #hash
+    SQL="SELECT ID_EHASH FROM entidad WHERE ID_ENTIDAD = %s"
+    cursor.execute(SQL,id_enti)
+    hash_en=cursor.fetchone()[0]
+    #status
+    SQL="SELECT E_STATUS FROM entidad WHERE ID_ENTIDAD = %s"
+    cursor.execute(SQL,id_enti)
+    estatus=cursor.fetchone()[0]
+    
+    print(estatus)
+    if(estatus==1):
+        esta_en='Activo'
+    else:
+        esta_en='Inactivo'        
+    
+    #nombre
+
+    SQL="SELECT N_ENTIDAD FROM entidad WHERE ID_ENTIDAD = %s"
+    cursor.execute(SQL,id_enti)
+    enti_en=cursor.fetchone()[0]
+    minar_sesion(id_enti)
+    conexion.commit()
+
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    len_cadena=cad_num(cursor.fetchall()[0])
+    SQL="SELECT Hash_previo FROM cadena WHERE Id_Cadena=%s"
+    cursor.execute(SQL,len_cadena)
+    hash_t=cursor.fetchone()[0]
+    Cd_timepo = datetime.now()
+    marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
+    Cer_dia = Cd_timepo.strftime('%d')
+    Cer_mes = Cd_timepo.strftime('%m')
+    Cer_ano = Cd_timepo.strftime('%Y')
+    Cer_hora = Cd_timepo.strftime('%H:%M:%S')
+
+    hash_QR = hash_en + ' - ' + hash_t + '- Firma Digital -' + marca_tiempo + '- Sistema de licensamiento - LICHAIN - '
+    conexion.commit()
+    conexion.close()
+    
+    #Generacion de QR#
+    qr = qrcode.QRCode(
+    version=12,
+    error_correction=qrcode.constants.ERROR_CORRECT_H,
+    box_size=5.9,
+    border=4
+    )
+    qr.add_data(hash_QR)
+    qr.make()
+    im2 = qr.make_image(fill_color="black", back_color="#ffffff")    
+    im1=Image.open("blockchain/plan_en.jpg")
+    back_im = im1.copy()
+    back_im.paste(im2,(1390,504))
+    #texto#
+    draw = ImageDraw.Draw(back_im)
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",55 )
+    #textos#
+
+    text = enti_en  
+    draw.text((255,534), text , font=font, fill="Black",align="center")
+    
+    text = 'Con NIT ' + CC_en 
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Italic.otf",30)  
+    draw.text((570,590), text , font=font, fill="Black",align="center")
+
+    text = esta_en
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",35)  
+    draw.text((465,690), text , font=font, fill="Black",align="center")
+   
+    text = "Se encuentra " +"                    "+ " en la plataforma de licenciamiento \n como una entidad  verificada."
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Regular.otf",35)  
+    draw.text((235,690), text , font=font, fill="Black",align="center")
+
+    
+    text = 'Certificado emitido a los '+ Cer_dia + ' del ' + Cer_mes + ' del ' + Cer_ano  
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Italic.otf",35)  
+    draw.text((380,890), text , font=font, fill="Black",align="center")
+
+
+    back_im.save('blockchain/temporal_en.pdf')
+    
+    
+    
