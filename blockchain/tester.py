@@ -3,6 +3,7 @@ import pymysql #modulo de  conecion con DB
 from datetime import date      #modulo de captura de  fechas del sistema
 from datetime import datetime  #modulo de captura de  tiempo del sistema
 from funciones_Li import*
+import re
 
 
 
@@ -11,7 +12,9 @@ from funciones_Li import*
     #insercion de qr #
 
 
-certi_en('proing.mauro@gmail.com')    
+#certi_li('proing.mauro@gmail.com',5)
+certi_en('proing.mauro@gmail.com')
+#certi_us('proing.mauro@gmail.com')            
 
 
 #draw = ImageDraw.Draw(image)

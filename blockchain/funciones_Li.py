@@ -649,6 +649,19 @@ def certi_us(CORREO):
 
 
     back_im.save('blockchain/temporal.pdf')
+    #envio al correo#
+      #Envio de codigo a correo 
+    temporal = "blockchain/temporal"+".pdf"
+    correo = yagmail.SMTP("usbblockchain@gmail.com","sanbuenventura") # Datos de acceso al correo del proyecto
+    correo.send(
+        to= CORREO,
+        subject= "Certificado Usuario- LICHAIN",
+        contents=["Lichain, hace entrega de la solicitud de cerificado de Usuario: ",temporal]
+        )
+    os.remove(temporal)    
+    print("su correo fue enviado correctamente")
+
+
 def certi_en(CORREO):
     conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
     cursor = conexion.cursor()
@@ -741,6 +754,167 @@ def certi_en(CORREO):
 
 
     back_im.save('blockchain/temporal_en.pdf')
+    temporal = "blockchain/temporal_en"+".pdf"
+    correo = yagmail.SMTP("usbblockchain@gmail.com","sanbuenventura") # Datos de acceso al correo del proyecto
+    correo.send(
+        to= CORREO,
+        subject= "Certificado Entidad - LICHAIN",
+        contents=["Lichain, hace entrega de la solicitud de cerificado de Entidad: ",temporal]
+        )
+    os.remove(temporal)    
+    print("su correo fue enviado correctamente")
+
+def certi_li(CORREO,id_licencia):      
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    #consultas#
+
+    #Usuario
+    SQL="SELECT NOMBRE FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_nombre = cursor.fetchone()[0]
+
+    SQL="SELECT APELLIDO FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    temp_apellido=cursor.fetchone()[0]
+
+    nombre = temp_nombre+' '+temp_apellido
+    
+    # Empresa
+
+    #id_entidad
+    SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    id_enti=cursor.fetchone()[0]
+
+    SQL="SELECT N_ENTIDAD FROM entidad WHERE ID_ENTIDAD = %s"
+    cursor.execute(SQL,id_enti)
+    enti_li=cursor.fetchone()[0]
+
+    #Licencia
+    
+    SQL="SELECT L_CODIGO FROM licencia WHERE ID_LICENCIA = %s"
+    cursor.execute(SQL,id_licencia)
+    codigo=cursor.fetchone()[0]
+
+        
+    SQL="SELECT COD_SHA FROM licencia WHERE ID_LICENCIA = %s"
+    cursor.execute(SQL,id_licencia)
+    Hash_li=cursor.fetchone()[0]
+
+
+     #vigencia
+
+    SQL="SELECT STATUS FROM licencia WHERE ID_LICENCIA= %s"
+    cursor.execute(SQL,id_licencia)
+    estatus=cursor.fetchone()[0]
+    
+    if(estatus==1):
+        esta_li='Activo'
+    elif(estatus==0):
+        esta_li='No registra'
+    else:
+        esta_li='Vencida'
+
+    #Marca de tiempo
+    SQL="SELECT TIME_ACT_L FROM licencia WHERE ID_LICENCIA= %s"
+    cursor.execute(SQL,id_licencia)
+    time_li =cursor.fetchone()[0]  
+     
+    Cd_timepo = datetime.now()
+    marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
+    Cer_dia = Cd_timepo.strftime('%d')
+    Cer_mes = Cd_timepo.strftime('%m')
+    Cer_ano = Cd_timepo.strftime('%Y')
+    Cer_hora = Cd_timepo.strftime('%H:%M:%S')
+
+    
+    
+    #temp_li_1 = int( re.sub(r'[^\w]','', time_li))
+    #temp_li_2 = int( re.sub(r'[^\w]','', marca_tiempo))
+
+    #vigen_li= temp_li_1 - temp_li_2
+    #vigen_li =vigen_li*-1
+    temp_li_1_str =  re.sub(r'[^\w]','', time_li)
+    año_new = str(int( temp_li_1_str[0:4]) + 1)
+  
+
+
+    formato_time_li_1 =  temp_li_1_str[0:4] +'/'+temp_li_1_str[4:6]+'/'+temp_li_1_str[6:8]
+    formato_time_li_2 =  año_new +'/'+temp_li_1_str[4:6]+'/'+temp_li_1_str[6:8]
+    vigen_li= formato_time_li_1+ ' - ' + formato_time_li_2      
+    
+    #minar la sesion 
+    minar_sesion(id_enti)
+    conexion.commit()
+
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    len_cadena=cad_num(cursor.fetchall()[0])
+    SQL="SELECT Hash_previo FROM cadena WHERE Id_Cadena=%s"
+    cursor.execute(SQL,len_cadena)
+    hash_t=cursor.fetchone()[0]
+    
+
+
+
+    hash_QR = Hash_li + ' - ' + hash_t + '- Firma Digital -' + marca_tiempo + '- Sistema de licensamiento - LICHAIN - '
+    conexion.commit()
+    conexion.close()
+    
+    #Generacion de QR#
+    qr = qrcode.QRCode(
+    version=12,
+    error_correction=qrcode.constants.ERROR_CORRECT_H,
+    box_size=5.9,
+    border=4
+    )
+    qr.add_data(hash_QR)
+    qr.make()
+    im2 = qr.make_image(fill_color="black", back_color="#ffffff")    
+    im1=Image.open("blockchain/plan_li.jpg") 
+    back_im = im1.copy()
+    back_im.paste(im2,(1390,504))
+    #texto#
+    draw = ImageDraw.Draw(back_im)
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",55 )
+    #textos#
+
+    text = codigo  
+    draw.text((155,534), text , font=font, fill="Black",align="center")
+    
+    text = 'Vigencia :' + vigen_li
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Italic.otf",20)  
+    draw.text((550,600), text , font=font, fill="Black",align="center")
+
+
+    text = esta_li
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",35)  
+    draw.text((480,690), text , font=font, fill="Black",align="center")
+   
+    text = "Se encuentra " +"                    "+ " en la plataforma de licenciamiento \n y esta asigando a la  "
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Regular.otf",35)  
+    draw.text((235,690), text , font=font, fill="Black",align="center")
+
+    text = enti_li
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Bold.otf",45)  
+    draw.text((350,790), text , font=font, fill="Black",align="center")
+
+    text = 'Certificado emitido a los '+ Cer_dia + ' del ' + Cer_mes + ' del ' + Cer_ano  
+    font = ImageFont.truetype("C:/Users/homer/Downloads/aleo/Aleo-Italic.otf",35)  
+    draw.text((380,890), text , font=font, fill="Black",align="center")
+
+
+    back_im.save('blockchain/temporal_li.pdf') 
+    temporal = "blockchain/temporal_li"+".pdf"
+    correo = yagmail.SMTP("usbblockchain@gmail.com","sanbuenventura") # Datos de acceso al correo del proyecto
+    correo.send(
+        to= CORREO,
+        subject= "Certificado Licencia - LICHAIN",
+        contents=["Lichain, hace entrega de la solicitud de cerificado de Codifo de licencia: ",temporal]
+        )
+    os.remove(temporal)    
+    print("su correo fue enviado correctamente")
     
     
     
