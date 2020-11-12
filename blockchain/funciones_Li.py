@@ -1130,5 +1130,80 @@ def json_sesion_li():
 
     with open('cadena_li.json', 'w') as jsonFile:
         json.dump(cadena, jsonFile)
-        jsonFile.close()  
+        jsonFile.close() 
+def reporte():
+
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    N_trans=cad_num(cursor.fetchall()[0]) #consulta del numero de transacciones
+    SQL="SELECT COUNT(*) FROM cadena WHERE Tipo_bloque=%s"
+    cursor.execute(SQL,1)
+    #indica el numero de solicitudes
+    N_bloque_s=cad_num(cursor.fetchall()[0]) #consulta del numero de bloques  tipo 1
+   
+    
+   
+
+    ################## USUARIOS  ################
+    
+    SQL="SELECT COUNT(*) FROM usuario"
+    cursor.execute(SQL)
+    N_usuario=cad_num(cursor.fetchall()[0]) 
+    # usuario activos
+    SQL="SELECT COUNT(*) FROM usuario WHERE US_STATUS=%s"
+    cursor.execute(SQL,1)
+    N_bloque_us=cad_num(cursor.fetchall()[0]) #consulta del numero de bloques  tipo 2
+    #solicitud de usuarios
+    N_user_inac = N_usuario-N_bloque_us
+
+    ###############  ENTIDADES ####################
+    
+    SQL="SELECT COUNT(*) FROM entidad"
+    cursor.execute(SQL)
+    N_entidades=cad_num(cursor.fetchall()[0]) 
+    # entidades activas
+    SQL="SELECT COUNT(*) FROM entidad WHERE E_STATUS=%s"
+    cursor.execute(SQL,3)
+    #indica el numero de entidades activas
+    N_bloque_en=cad_num(cursor.fetchall()[0]) #consulta del numero de bloques  tipo 3
+    #solicitud de entides
+    N_entid_inac= N_entidades-N_bloque_en
+
+    ################## Licencias #####################
+
+    SQL="SELECT COUNT(*) FROM licencia"
+    cursor.execute(SQL)
+    N_licencia=cad_num(cursor.fetchall()[0]) 
+    #licencias  activas
+    SQL="SELECT COUNT(*) FROM licencia WHERE STATUS=%s"
+    cursor.execute(SQL,1)
+    N_licencia_ac=cad_num(cursor.fetchall()[0])
+    #licencias vencidas
+    SQL="SELECT COUNT(*) FROM licencia WHERE STATUS=%s"
+    cursor.execute(SQL,2)
+    N_licencia_ve=cad_num(cursor.fetchall()[0])
+    #licencias Disponibles
+    x=1
+    num_lic_dis=0
+    while x!=(N_entidades+1):
+        SQL="SELECT `NUM_LICENCIAS` from `entidad` WHERE `ID_ENTIDAD`=%s"
+        cursor.execute(SQL,x)
+        temp=cursor.fetchone()[0]
+        num_lic_dis=num_lic_dis+temp
+        temp=0
+        x=x+1
+    #######################################################
+    Cd_timepo = datetime.now()
+   
+    Cer_dia = Cd_timepo.strftime('%d')
+    Cer_mes = Cd_timepo.strftime('%m')
+    Cer_ano = Cd_timepo.strftime('%Y')
+    
+    
+
+    cadena = "EL sistema reporta un total de " + str(N_trans) + " transacciones validas. \n \n"+ "      Informe detallado: \n \n" + "Número de Usuario: " +  str(N_usuario) + "\n"+"Número de Usuario Activos: " +  str(N_bloque_us) + "\n"+"Solicitud de resgistro: " +  str(N_user_inac) + "\n \n"+"Número de Entidas: " +  str(N_entidades) + "\n"+" Número de Entidades Activas: " +  str(N_bloque_en) + "\n"+" Solicitud de resgistro: " +  str(N_entid_inac) + "\n \n"+" Número de Licencias generadas: " +  str(N_licencia) + "\n"+" Número de Licencias Activas: " +  str(N_licencia_ac) + "\n"+" Número de Licencias Vencidas: " + str(N_licencia_ve) + "\n"+" Total de licencias disponibles para activar: " +  str(num_lic_dis) + "\n \n"+ "Informe generado por  Lichain a  los "+ Cer_dia +" del "+ Cer_mes + " del " + Cer_ano
+    return cadena
+                       
     
