@@ -193,31 +193,64 @@ def bloque_sesion(proof,hash_previo,entidad,index):
     Cd_timepo = datetime.now()
     #estructura de datos del bloque
     BC_sesion = {
-        'index' : int(index)+1, #se aumenta el indice de la cadena
-        'timestamp': Cd_timepo.strftime('%Y-%m-%d %H:%M:%S'),# toma el  fecha (dia/mes) y hora del sistema (HH:MM:SS)
-        'fK_entidad':   entidad, # id nombre del usuario que inicio sesion 
+        'index' : int(index)+1,                                   #se aumenta el indice de la cadena
+        'timestamp': Cd_timepo.strftime('%Y-%m-%d %H:%M:%S'),     # toma el  fecha (dia/mes) y hora del sistema (HH:MM:SS)
+        'fK_entidad':   entidad,                                  # id nombre del usuario que inicio sesion 
         'tipo_bloque':'1',
-        'proof':proof , # resultado de la PoW
-        'hash_previo': hash_previo # hash previo al bloque
+        'proof':proof ,                                           # resultado de la PoW
+        'hash_previo': hash_previo                                # hash previo al bloque
         }
-    return BC_sesion  # se retorna  el bloque parametrizado.
-
+    return BC_sesion                                              # se retorna  el bloque parametrizado.
+   
     # Definicion del Pow         
 def proof_of_work(proof_previo):
     nuevo_proof = 1   #creamos prueba de trabajo
     valida_proof = False # asumimos que  la interacion es falasa para  frozar la validacion
     while valida_proof is False:
         hash_operation = hashlib.sha256(str(nuevo_proof**2 - proof_previo**2).encode()).hexdigest() #minado de respuesta
+        #print(hash_operation)
         if hash_operation[:6] == '000001': #  citerio de busqueda
             valida_proof = True
+            
         else:
             nuevo_proof += 1
     return nuevo_proof
+
+def cadena_valida():
+    index_bloque= 2         #indexamos el bloque
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    len_cadena=cad_num(cursor.fetchall()[0]) #consulta del numero de registros
+    conexion.commit()
+    
+    while   index_bloque< len_cadena:
+
+        SQL="SELECT `proof` FROM `cadena` WHERE `Id_Cadena` = %s"
+        cursor.execute(SQL,index_bloque)
+        proof_previo= int(cursor.fetchone()[0])
+        #print(str(proof_previo))
+        
+        SQL="SELECT `proof` FROM `cadena` WHERE `Id_Cadena` = %s"
+        cursor.execute(SQL,(index_bloque+1))
+        proof_nuevo= int(cursor.fetchone()[0])
+        #print(str(proof_nuevo))
+
+        hash_operation = hashlib.sha256(str(proof_nuevo**2 - proof_previo**2).encode()).hexdigest()
+        if hash_operation[:6] != '000001':
+            return False
+        index_bloque+= 1
+
+    return True
+
     #hasH de sesion         
 def hash(BC_sesion):
     codificacion_bloque = json.dumps(BC_sesion, sort_keys = True).encode()
     #print(codificacion_bloque)
-    return hashlib.sha256(codificacion_bloque).hexdigest()
+    #print(hashlib.sha3_256(codificacion_bloque).hexdigest())
+    return hashlib.sha3_256(codificacion_bloque).hexdigest()
+    #return hashlib.sha256(codificacion_bloque).hexdigest()
 
     #hasH de sesion  
 def minar_sesion(FK_empresa):
@@ -226,12 +259,13 @@ def minar_sesion(FK_empresa):
     SQL="SELECT COUNT(*) FROM cadena"
     cursor.execute(SQL)
     len_cadena=cad_num(cursor.fetchall()[0]) #consulta del numero de registros
+    conexion.commit()
     Con_bloque= str(len_cadena-1)
     Index=cad_num(consulta_one_DB_STR('Index','cadena','Index',Con_bloque))
-    Index_nuevo=int(Con_bloque)+1
+    Index_nuevo=int(Con_bloque)+2
     Cd_timepo = datetime.now()
     marca_tiempo = Cd_timepo.strftime('%Y-%m-%d %H:%M:%S')
-    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',Con_bloque))
+    proof_previo= cad_num(consulta_one_DB_STR('proof','cadena','Index',len_cadena))
     proof =proof_of_work(proof_previo)
     hash_previo =consulta_varc_Str('Hash_previo','cadena','Index',Con_bloque) 
     BC_sesion= bloque_sesion(proof,hash_previo,FK_empresa,Index)
@@ -240,6 +274,12 @@ def minar_sesion(FK_empresa):
     Sql_up="INSERT INTO cadena (`Index`,`proof`,`time`,`Tipo_bloque`,`Hash_previo`,`ID_FK_entidad`) VALUES (%s,%s,%s,%s,%s,%s)"
     complemento=(Index_nuevo,proof,marca_tiempo,1,hash_bloque,FK_empresa)
     cursor.execute(Sql_up,complemento)
+    conexion.commit()
+    validar=cadena_valida()
+    if validar== True:
+        print('bloque validado y  adicionado a la cadena')
+    else:
+        print('Bloque  corrupto')        
     conexion.commit()
     conexion.close()
 #se minara el bloque si el usuarios es valido y se autorizara el ingreso
@@ -661,7 +701,6 @@ def certi_us(CORREO):
     os.remove(temporal)    
     print("su correo fue enviado correctamente")
 
-
 def certi_en(CORREO):
     conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
     cursor = conexion.cursor()
@@ -915,6 +954,181 @@ def certi_li(CORREO,id_licencia):
         )
     os.remove(temporal)    
     print("su correo fue enviado correctamente")
+def soporte (CORREO,come):
+    #conexion
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+
+    SQL="SELECT FK_ID_ENTIDAD FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    id_enti=cursor.fetchone()[0]
+
+    SQL="SELECT ID_Usuario FROM usuario WHERE CORREO = %s"
+    cursor.execute(SQL,CORREO)
+    id_user=cursor.fetchone()[0]
+
+    Sql_li="INSERT INTO soporte (`FK_ID_USUARIO`,`FK_ID_ENTIDAD`,`COMENT`,`STATUS`) VALUES(%s,%s,%s,%s)"
+    complemen=(id_user,id_enti,come,0)
+    cursor.execute(Sql_li,complemen)
+    conexion.commit()
+    conexion.close()
+
+def validacion():
+    index_bloque= 1         #indexamos el bloque
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    len_cadena=cad_num(cursor.fetchall()[0]) #consulta del numero de registros
+    conexion.commit()
+
+
+    while   index_bloque< len_cadena:
+
+
+        SQL="SELECT `proof` FROM `cadena` WHERE `Id_Cadena` = %s"
+        cursor.execute(SQL,index_bloque)
+        proof_previo= int(cursor.fetchone()[0])
+        #print(str(proof_previo))
+            
+        SQL="SELECT `proof` FROM `cadena` WHERE `Id_Cadena` = %s"
+        cursor.execute(SQL,(index_bloque+1))
+        proof_nuevo= int(cursor.fetchone()[0])
+      
+        print(str(proof_nuevo))
+
+        hash_operation = hashlib.sha256(str(proof_nuevo**2 - proof_previo**2).encode()).hexdigest()
+        
+        print(hash_operation)
+        
+        if hash_operation[:6] != '000001':
+            return False
+       
+        index_bloque+= 1
+
+    return True
+
+def json_sesion():
     
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM cadena"
+    cursor.execute(SQL)
+    len_cadena=int(cursor.fetchone()[0])
+    SQL="SELECT * FROM cadena"
+    cursor.execute(SQL)
+    h= cursor.fetchall()
+    x=1
+    cadena=[]
+
+    for x in range (len_cadena):
+        BC_sesion = {
+            'index' : h[x][0],                                   
+            'timestamp':h[x][3],
+            'fK_entidad':h[x][6],                                  
+            'tipo_bloque':'1',
+            'proof':h[x][2] ,                                           
+            'hash_previo':h[x][5]                                 
+        }
+        cadena.append(BC_sesion)
+
+    with open('cadena_sesion.json', 'w') as jsonFile:
+        json.dump(cadena, jsonFile)
+        jsonFile.close()    
+def json_sesion_us():
     
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM usuario"
+    cursor.execute(SQL)
+    len_cadena=int(cursor.fetchone()[0])
+    SQL="SELECT * FROM usuario"
+    cursor.execute(SQL)
+    h= cursor.fetchall()
+    x=1
+    cadena=[]
+
+    for x in range (len_cadena):
+        BC_usuario = {
+            'index' : h[x][0], 
+            'tipo bloque':'2', 
+            'Nombre':  h[x][1], 
+            'Apellido': h[x][2],
+            'ROL': h[x][7], 
+            'Id idendificacion':h[x][3],
+            'Correo':h[x][4],
+            'ID Hash':h[x][5],
+            'Id entidad': h[x][6],
+            'Ciudad':h[x][10],
+            'Provincia':h[x][9],
+            'Pais':h[x][8],
+            'Status':h[x][11] 
+        }
+        cadena.append(BC_usuario)
+
+    with open('cadena_us.json', 'w') as jsonFile:
+        json.dump(cadena, jsonFile)
+        jsonFile.close()    
+def json_sesion_en():
+    
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM entidad"
+    cursor.execute(SQL)
+    len_cadena=int(cursor.fetchone()[0])
+    SQL="SELECT * FROM entidad"
+    cursor.execute(SQL)
+    h= cursor.fetchall()
+    x=1
+    cadena=[]
+
+    for x in range (len_cadena):
+        BC_entidad = {  
+            'index' : h[x][0], 
+            'tipo bloque':'3', 
+            'Nombre entidad':h[x][1], 
+            'Nic':h[x][2], 
+            'Correo entidad':h[x][3], 
+            'Direccion':h[x][7], 
+            'E Ciudad':h[x][6], 
+            'E Provincia':h[x][5], 
+            'E Pais':h[x][4], 
+            'N licencias':h[x][9], 
+            'L activas': h[x][8],
+            'Status':h[x][10],
+            'ID HASH':h[x][11]  
+            }
+        cadena.append(BC_entidad)
+
+    with open('cadena_en.json', 'w') as jsonFile:
+        json.dump(cadena, jsonFile)
+        jsonFile.close()   
+def json_sesion_li():
+    conexion = pymysql.connect(host="localhost",user="root",passwd="12345",database="blockchain")
+    cursor = conexion.cursor()
+    SQL="SELECT COUNT(*) FROM licencia"
+    cursor.execute(SQL)
+    len_cadena=int(cursor.fetchone()[0])
+    SQL="SELECT * FROM licencia"
+    cursor.execute(SQL)
+    h= cursor.fetchall()
+    x=1
+    cadena=[]
+
+    for x in range (len_cadena):
+        BC_licencia = {
+            'index' : h[x][0], 
+            'tipo_bloque':'4', 
+            'Id_cliente': h[x][3],
+            'Id_entidad': h[x][4],
+            'fecha_activate': h[x][5],
+            'status':h[x][6],
+            'HASH ID':h[x][1],
+            'Codigo L':h[x][2]
+         }
+        cadena.append(BC_licencia)
+
+    with open('cadena_li.json', 'w') as jsonFile:
+        json.dump(cadena, jsonFile)
+        jsonFile.close()  
     
